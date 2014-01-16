@@ -23,7 +23,9 @@ while True:
 ##    print c.recv(1024)
 ##    print
 
-    init = "HTTP/1.0 200 OK\r\n"
+    # @comment			I reviewed it and it works perfectly.
+    
+	init = "HTTP/1.0 200 OK\r\n"
     header = "Content-Type:  text/html\r\n\r\n"
     body = "<h1>Hello, world</h1> this is MattyAyOh's web server."
     message = init + header + body
