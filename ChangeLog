@@ -5,4 +5,6 @@
 2014-01-19  Matthew Ao  <MatthewAo@mayo.local>
 
  * Added header to HTTP Response
- * Cleaned up code, HW1 Fixes
+
+ * @comment			I checked it. It's better to have
+ * the updated date with it.
