@@ -23,11 +23,11 @@ while True:
 ##    print c.recv(1024)
 ##    print
 
-    init = "HTTP/1.0 200 OK\r\n"
-    header = "Content-Type:  text/html\r\n\r\n"
-    body = "<h1>Hello, world</h1> this is MattyAyOh's web server."
-    message = init + header + body
+    c.send('HTTP/1.0 200 OK\r\n')
+    c.send('Content-type: text/html\r\n')
+    c.send('\r\n')
+    c.send('<h1>Hello, world.</h1>')
+    c.send('This is MattyAyOh\'s Web server.')
     
-    c.send(message)
     c.close()
 

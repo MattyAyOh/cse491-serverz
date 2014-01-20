@@ -1,4 +1,8 @@
 2014-01-07  Titus Brown  <t@Titus-MacBook-Air-2.local>
 
  * Initialized repository, created server.py and README.
+
+2014-01-19  Matthew Ao  <MatthewAo@mayo.local>
+
  * Added header to HTTP Response
+ * Cleaned up code, HW1 Fixes
