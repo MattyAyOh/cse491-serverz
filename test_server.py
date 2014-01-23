@@ -27,14 +27,76 @@ class FakeConnection(object):
 
 # Test a basic GET call.
 
-def test_handle_connection():
+def test_handle_connection_default():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
                       '<h1>Hello, world.</h1>' + \
-                      'This is ctb\'s Web server.'
+                      '<a href="/content">Content</a><br>' + \
+                      '<a href="/file">File</a><br>' + \
+                      '<a href="/image">Image</a><br>' + \
+                      'This is MattyAyOh\'s Web server.'
 
-    server.handle_connection(conn)
+    server.handle_connection_default(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_content():
+    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h1>Here\'s Some Content</h1>' + \
+                      'This is MattyAyOh\'s Web server.'
+
+    server.handle_connection_content(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_file():
+    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h1>Here\'s a File</h1>' + \
+                      'This is MattyAyOh\'s Web server.'
+
+    server.handle_connection_file(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_image():
+    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h1>Here\'s an Image</h1>' + \
+                      'This is MattyAyOh\'s Web server.'
+
+    server.handle_connection_image(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_connection_fail():
+    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      '<h1>You made a bad request :(</h1>' + \
+                      'This is MattyAyOh\'s Web server.'
+
+    server.handle_connection_fail(conn)
+
+    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+
+def test_handle_post_connection():
+    conn = FakeConnection("POST / HTTP/1.0\r\n\r\n")
+    expected_return = 'HTTP/1.0 200 OK\r\n' + \
+                      'Content-type: text/html\r\n' + \
+                      '\r\n' + \
+                      'Hello, World.  This is a Post Response'
+
+    server.handle_post_connection(conn)
 
     assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
