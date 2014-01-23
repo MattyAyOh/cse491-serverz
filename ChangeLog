@@ -6,3 +6,8 @@
 
  * Added header to HTTP Response
  * Cleaned up code, HW1 Fixes
+
+2014-01-22 Matthew Ao <MatthewAo@mayo.local>
+
+ * Finished HW2, Added ability to handle different paths
+ * Added POST functionality
