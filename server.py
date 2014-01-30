@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import random
 import socket
+import urlparse
 import time
 
 def main():
@@ -20,80 +21,105 @@ def main():
         # Establish connection with client.    
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        requestInfo = c.recv(1024)
-        requestType = requestInfo.split()[0]
 
-        if requestType == "GET":
-            url = requestInfo.split()[1]
-            
-            if url == '/':
-                handle_connection_default(c)
-            elif url == '/content':
-                handle_connection_content(c)
-            elif url == '/file':
-                handle_connection_file(c)
-            elif url == '/image':
-                handle_connection_image(c)
-            else:
-                handle_connection_fail(c)
+        handle_connection(c)
 
-        elif requestType == "POST":
-                handle_post_connection(c)
+def handle_connection(conn):
+    requestInfo = conn.recv(1024)
+    print requestInfo
+    requestSplit = requestInfo.split('\r\n')[0].split(' ')
+    requestType = requestSplit[0]
 
+    try:
+        parsed_url = urlparse.urlparse(requestSplit[1])
+        path = parsed_url[2]
+    except:
+        path = "/404"
+
+    if requestType == "GET":
+        if path == '/':
+            handle_index(conn)
+        elif path == '/content':
+            handle_content(conn)
+        elif path == '/file':
+            handle_file(conn)
+        elif path == '/image':
+            handle_image(conn)
+        elif path == '/submit':
+            handle_submit(conn,parsed_url[4])
         else:
-            print "ERROR: Invalid Request Made"
-            break
+            handle_fail(conn)
 
-    
-def handle_connection_default(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
-    conn.send('<h1>Hello, world.</h1>')
-    conn.send('<a href="/content">Content</a><br>')
-    conn.send('<a href="/file">File</a><br>')
-    conn.send('<a href="/image">Image</a><br>')
-    conn.send('This is MattyAyOh\'s Web server.')
+    elif requestType == "POST":
+        if path == '/':
+            handle_index(conn)
+        elif path == '/submit':
+            handle_submit(conn,requestInfo.split('\r\n')[-1])
+
+    else:
+        print "ERROR: Invalid Request Made"
+
     conn.close()
 
-def handle_connection_content(conn):
+def handle_index(conn, args):
+    conn.send('HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            "<a href='/content'>Content</a><br>" + \
+            "<a href='/file'>File</a><br>" + \
+            "<a href='/image'>Image</a><br><br>" + \
+            "<p><u>Form Submission via GET</u></p>"
+            "<form action='/submit' method='GET'>\n" + \
+            "<p>first name: <input type='text' name='firstname'></p>\n" + \
+            "<p>last name: <input type='text' name='lastname'></p>\n" + \
+            "<p><input type='submit' value='Submit'>\n\n" + \
+            "</form></p>" + \
+            "<p><u>Form Submission via POST</u></p>"
+            "<form action='/submit' method='POST'>\n" + \
+            "<p>first name: <input type='text' name='firstname'></p>\n" + \
+            "<p>last name: <input type='text' name='lastname'></p>\n" + \
+            "<p><input type='submit' value='Submit'>\n\n" + \
+            "</form></p>")
+
+def handle_submit(conn, args):
+    args = args.split("&")
+
+    firstname = args[0].split("=")[1]
+    lastname = args[1].split("=")[1]
+
+    conn.send('HTTP/1.0 200 OK\r\n' + \
+              'Content-type: text/html\r\n' + \
+              '\r\n' + \
+              "Hello Mr. %s %s." % (firstname, lastname))
+
+
+def handle_content(conn, args):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send('Content-type: text/html\r\n')
     conn.send('\r\n')
     conn.send('<h1>Here\'s Some Content</h1>')
     conn.send('This is MattyAyOh\'s Web server.')
-    conn.close()
 
-def handle_connection_file(conn):
+def handle_file(conn, args):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send('Content-type: text/html\r\n')
     conn.send('\r\n')
     conn.send('<h1>Here\'s a File</h1>')
     conn.send('This is MattyAyOh\'s Web server.')
-    conn.close()
 
-def handle_connection_image(conn):
+def handle_image(conn, args):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send('Content-type: text/html\r\n')
     conn.send('\r\n')
     conn.send('<h1>Here\'s an Image</h1>')
     conn.send('This is MattyAyOh\'s Web server.')
-    conn.close()
 
-def handle_connection_fail(conn):
+def handle_fail(conn, args):
     conn.send('HTTP/1.0 200 OK\r\n')
     conn.send('Content-type: text/html\r\n')
     conn.send('\r\n')
     conn.send('<h1>You made a bad request :(</h1>')
     conn.send('This is MattyAyOh\'s Web server.')
-    conn.close()
-
-def handle_post_connection(conn):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
-    conn.send('Hello, World.  This is a Post Response')
-    conn.close()
 
 if __name__ == '__main__':
     main()
