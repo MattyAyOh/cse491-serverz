@@ -1,2 +1,4 @@
 *.pyc
 *~
+cse491-hw1-review/
+send_post_request.py
