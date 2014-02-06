@@ -1,5 +1,3 @@
-# @comment   I Reviewed this, it works it both Firefox and Chrome. Good work!
-
 #!/usr/bin/env python
 import random
 import socket
@@ -22,7 +20,7 @@ def main():
 
     print 'Entering infinite loop; hit CTRL-C to exit'
     while True:
-        # Establish connection with client.    
+        # Establish connection with client.
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port, '\n'
         handle_connection(c)
@@ -32,7 +30,7 @@ def handle_connection(conn):
   env = jinja2.Environment(loader=loader)
 
   request = conn.recv(1)
-  
+
   # This will get all the headers
   while request[-4:] != '\r\n\r\n':
     request += conn.recv(1)
@@ -42,7 +40,7 @@ def handle_connection(conn):
   # Path is the second element in the first line of the request
   # separated by whitespace. (Between GET and HTTP/1.1). GET/POST is first.
   http_method = first_line_of_request_split[0]
-	
+
   try:
     parsed_url = urlparse.urlparse(first_line_of_request_split[1])
     path = parsed_url[2]
@@ -90,7 +88,7 @@ def handle_index(conn, params, env):
             'Content-type: text/html\r\n' + \
             '\r\n' + \
             env.get_template("index_result.html").render()
-            
+
   conn.send(response)
 
 def handle_submit_post(conn, form, env):
@@ -111,12 +109,12 @@ def handle_submit_post(conn, form, env):
 
     vars = dict(firstname = firstname, lastname = lastname)
     template = env.get_template("submit_result.html")
-    
+
     response = 'HTTP/1.0 200 OK\r\n' + \
             'Content-type: text/html\r\n' + \
             '\r\n' + \
             env.get_template("submit_result.html").render(vars)
-            
+
     conn.send(response)
 
 def handle_submit_get(conn, params, env):
@@ -138,12 +136,12 @@ def handle_submit_get(conn, params, env):
 
     vars = dict(firstname = firstname, lastname = lastname)
     template = env.get_template("submit_result.html")
-    
+
     response = 'HTTP/1.0 200 OK\r\n' + \
             'Content-type: text/html\r\n' + \
             '\r\n' + \
             env.get_template("submit_result.html").render(vars)
-            
+
     conn.send(response)
 
 def handle_content(conn, params, env):
@@ -152,7 +150,7 @@ def handle_content(conn, params, env):
             'Content-type: text/html\r\n' + \
             '\r\n' + \
             env.get_template("content_result.html").render()
-            
+
   conn.send(response)
 
 def handle_file(conn, params, env):
@@ -161,7 +159,7 @@ def handle_file(conn, params, env):
             'Content-type: text/html\r\n' + \
             '\r\n' + \
             env.get_template("file_result.html").render()
-            
+
   conn.send(response)
 
 def handle_image(conn, params, env):
@@ -184,7 +182,7 @@ def not_found(conn, params, env):
 
 def parse_post_request(conn, request):
   ''' Takes in a request (as a string), parses it, and
-      returns a dictionary of header name => header value 
+      returns a dictionary of header name => header value
       returns a string built from the content of the request
       Sidenote: God I love that you can do this in Python. Python is great.'''
   header_dict = dict()
@@ -202,7 +200,7 @@ def parse_post_request(conn, request):
     header_dict[header[0].lower()] = header[1]
 
   content_length = int(header_dict['content-length'])
-  
+
   content = ''
   for i in range(0,content_length):
     content += conn.recv(1)
