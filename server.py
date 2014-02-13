@@ -1,14 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import random
 import socket
-import urlparse
 import time
+import urlparse
+import cgi
+import jinja2
+from StringIO import StringIO
 
 def main():
     s = socket.socket()         # Create a socket object
-    host = socket.getfqdn() # Get local machine name
-    port = random.randint(8000,9000)
+    host = socket.getfqdn()     # Get local machine name
+    port = random.randint(8000, 9999)
     s.bind((host, port))        # Bind to the port
 
     print 'Starting server on', host, port
@@ -18,108 +20,192 @@ def main():
 
     print 'Entering infinite loop; hit CTRL-C to exit'
     while True:
-        # Establish connection with client.    
+        # Establish connection with client.
         c, (client_host, client_port) = s.accept()
-        print 'Got connection from', client_host, client_port
-
+        print 'Got connection from', client_host, client_port, '\n'
         handle_connection(c)
 
 def handle_connection(conn):
-    requestInfo = conn.recv(1024)
-    print requestInfo
-    requestSplit = requestInfo.split('\r\n')[0].split(' ')
-    requestType = requestSplit[0]
+  loader = jinja2.FileSystemLoader('./templates')
+  env = jinja2.Environment(loader=loader)
 
-    try:
-        parsed_url = urlparse.urlparse(requestSplit[1])
-        path = parsed_url[2]
-    except:
-        path = "/404"
+  request = conn.recv(1)
 
-    if requestType == "GET":
-        if path == '/':
-            handle_index(conn)
-        elif path == '/content':
-            handle_content(conn)
-        elif path == '/file':
-            handle_file(conn)
-        elif path == '/image':
-            handle_image(conn)
-        elif path == '/submit':
-            handle_submit(conn,parsed_url[4])
-        else:
-            handle_fail(conn)
+  # This will get all the headers
+  while request[-4:] != '\r\n\r\n':
+    request += conn.recv(1)
 
-    elif requestType == "POST":
-        if path == '/':
-            handle_index(conn)
-        elif path == '/submit':
-            handle_submit(conn,requestInfo.split('\r\n')[-1])
+  first_line_of_request_split = request.split('\r\n')[0].split(' ')
 
+  # Path is the second element in the first line of the request
+  # separated by whitespace. (Between GET and HTTP/1.1). GET/POST is first.
+  http_method = first_line_of_request_split[0]
+
+  try:
+    parsed_url = urlparse.urlparse(first_line_of_request_split[1])
+    path = parsed_url[2]
+  except:
+    not_found(conn,'', env)
+    return
+
+  if http_method == 'POST':
+    headers_dict, content = parse_post_request(conn, request)
+    environ = {}
+    environ['REQUEST_METHOD'] = 'POST'
+
+    print request + content # Print the request
+    form = cgi.FieldStorage(headers = headers_dict, fp = StringIO(content), environ = environ)
+
+    if path == '/':
+      handle_index(conn, '', env)
+    elif path == '/submit':
+        # POST has the submitted params at the end of the content body
+        handle_submit_post(conn,form, env)
     else:
-        print "ERROR: Invalid Request Made"
+        not_found(conn, '', env)
+  else:
+      print request
+      # Most of these are taking in empty strings. The assignment
+      # said to try to keep all the params the same for the future, so I did.
+      if path == '/':
+          handle_index(conn, '', env)
+      elif path == '/content':
+          handle_content(conn, '', env)
+      elif path == '/file':
+          handle_file(conn, '',env)
+      elif path == '/image':
+          handle_image(conn, '', env)
+      elif path == '/submit':
+          # GET has the params in the URL.
+          handle_submit_get(conn,parsed_url[4], env)
+      else:
+          not_found(conn, '', env)
+  conn.close()
 
-    conn.close()
-
-def handle_index(conn, args):
-    conn.send('HTTP/1.0 200 OK\r\n' + \
+def handle_index(conn, params, env):
+  ''' Handle a connection given path / '''
+  response = 'HTTP/1.0 200 OK\r\n' + \
             'Content-type: text/html\r\n' + \
             '\r\n' + \
-            "<a href='/content'>Content</a><br>" + \
-            "<a href='/file'>File</a><br>" + \
-            "<a href='/image'>Image</a><br><br>" + \
-            "<p><u>Form Submission via GET</u></p>"
-            "<form action='/submit' method='GET'>\n" + \
-            "<p>first name: <input type='text' name='firstname'></p>\n" + \
-            "<p>last name: <input type='text' name='lastname'></p>\n" + \
-            "<p><input type='submit' value='Submit'>\n\n" + \
-            "</form></p>" + \
-            "<p><u>Form Submission via POST</u></p>"
-            "<form action='/submit' method='POST'>\n" + \
-            "<p>first name: <input type='text' name='firstname'></p>\n" + \
-            "<p>last name: <input type='text' name='lastname'></p>\n" + \
-            "<p><input type='submit' value='Submit'>\n\n" + \
-            "</form></p>")
+            env.get_template("index_result.html").render()
 
-def handle_submit(conn, args):
-    args = args.split("&")
+  conn.send(response)
 
-    firstname = args[0].split("=")[1]
-    lastname = args[1].split("=")[1]
+def handle_submit_post(conn, form, env):
+    ''' Handle a connection given path /submit '''
+    # submit needs to know about the query field, so more
+    # work needs to be done here.
 
-    conn.send('HTTP/1.0 200 OK\r\n' + \
-              'Content-type: text/html\r\n' + \
-              '\r\n' + \
-              "Hello Mr. %s %s." % (firstname, lastname))
+    # we want the first element of the returned list
 
+    try:
+      firstname = form['firstname'].value
+    except KeyError:
+      firstname = ''
+    try:
+      lastname = form['lastname'].value
+    except KeyError:
+      lastname = ''
 
-def handle_content(conn, args):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
-    conn.send('<h1>Here\'s Some Content</h1>')
-    conn.send('This is MattyAyOh\'s Web server.')
+    vars = dict(firstname = firstname, lastname = lastname)
+    template = env.get_template("submit_result.html")
 
-def handle_file(conn, args):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
-    conn.send('<h1>Here\'s a File</h1>')
-    conn.send('This is MattyAyOh\'s Web server.')
+    response = 'HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            env.get_template("submit_result.html").render(vars)
 
-def handle_image(conn, args):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
-    conn.send('<h1>Here\'s an Image</h1>')
-    conn.send('This is MattyAyOh\'s Web server.')
+    conn.send(response)
 
-def handle_fail(conn, args):
-    conn.send('HTTP/1.0 200 OK\r\n')
-    conn.send('Content-type: text/html\r\n')
-    conn.send('\r\n')
-    conn.send('<h1>You made a bad request :(</h1>')
-    conn.send('This is MattyAyOh\'s Web server.')
+def handle_submit_get(conn, params, env):
+    ''' Handle a connection given path /submit '''
+    # submit needs to know about the query field, so more
+    # work needs to be done here.
+
+    # we want the first element of the returned list
+    params = urlparse.parse_qs(params)
+
+    try:
+      firstname = params['firstname'][0]
+    except KeyError:
+      firstname = ''
+    try:
+      lastname = params['lastname'][0]
+    except KeyError:
+      lastname = ''
+
+    vars = dict(firstname = firstname, lastname = lastname)
+    template = env.get_template("submit_result.html")
+
+    response = 'HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            env.get_template("submit_result.html").render(vars)
+
+    conn.send(response)
+
+def handle_content(conn, params, env):
+  ''' Handle a connection given path /content '''
+  response = 'HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            env.get_template("content_result.html").render()
+
+  conn.send(response)
+
+def handle_file(conn, params, env):
+  ''' Handle a connection given path /file '''
+  response = 'HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            env.get_template("file_result.html").render()
+
+  conn.send(response)
+
+def handle_image(conn, params, env):
+  ''' Handle a connection given path /image '''
+  response = 'HTTP/1.0 200 OK\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            env.get_template("image_result.html").render()
+
+  conn.send(response)
+
+def not_found(conn, params, env):
+
+  response = 'HTTP/1.0 404 Not Found\r\n' + \
+            'Content-type: text/html\r\n' + \
+            '\r\n' + \
+            env.get_template("not_found.html").render()
+
+  conn.send(response)
+
+def parse_post_request(conn, request):
+  ''' Takes in a request (as a string), parses it, and
+      returns a dictionary of header name => header value
+      returns a string built from the content of the request
+      Sidenote: God I love that you can do this in Python. Python is great.'''
+  header_dict = dict()
+
+  request_split = request.split('\r\n')
+
+  # Headers are separated from the content by '\r\n'
+  # which, after the split, is just ''.
+
+  # First line isn't a header, but everything else
+  # up to the empty line is. The names are separated
+  # from the values by ': '
+  for i in range(1,len(request_split) - 2):
+    header = request_split[i].split(': ', 1)
+    header_dict[header[0].lower()] = header[1]
+
+  content_length = int(header_dict['content-length'])
+
+  content = ''
+  for i in range(0,content_length):
+    content += conn.recv(1)
+
+  return header_dict, content
 
 if __name__ == '__main__':
-    main()
+   main()

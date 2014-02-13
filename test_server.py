@@ -25,124 +25,150 @@ class FakeConnection(object):
     def close(self):
         self.is_closed = True
 
-# Test a basic GET call.
+# Test basic GET calls.
 
+# Test path = /
+def test_handle_connection():
+    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+
+    server.handle_connection(conn)
+
+    assert 'HTTP/1.0 200' in conn.sent and 'form' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+
+# Test path = /content
 def test_handle_connection_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      '<h1>Here\'s Some Content</h1>' + \
-                      'This is MattyAyOh\'s Web server.'
 
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert 'HTTP/1.0 200' in conn.sent and 'content' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
 
+# Test path = /file
 def test_handle_connection_file():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      '<h1>Here\'s a File</h1>' + \
-                      'This is MattyAyOh\'s Web server.'
 
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert 'HTTP/1.0 200' in conn.sent and 'file' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
 
+# Test path = /content
 def test_handle_connection_image():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
     expected_return = 'HTTP/1.0 200 OK\r\n' + \
                       'Content-type: text/html\r\n' + \
                       '\r\n' + \
-                      '<h1>Here\'s an Image</h1>' + \
-                      'This is MattyAyOh\'s Web server.'
+                      '<h1>Wow. Such page. Very HTTP response</h1>' + \
+                      'This is some image.'
+
+    server.handle_connection(conn)
+    print conn.sent
+    assert 'HTTP/1.0 200' in conn.sent and 'image' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+
+# Test path = /submit
+def test_handle_submit():
+    conn = FakeConnection("GET /submit?firstname=Taylor&lastname=Swift" + \
+                          " HTTP/1.1\r\n\r\n")
 
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert 'html' in conn.sent and "Taylor" in conn.sent \
+      and 'Swift' in conn.sent, 'Got: %s' % (repr(conn.sent),)
 
-def test_handle_connection_fail():
-    conn = FakeConnection("GET /fail HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      '<h1>You made a bad request :(</h1>' + \
-                      'This is MattyAyOh\'s Web server.'
+# Test a submit with no first name
+def test_handle_submit_no_first_name():
+    conn = FakeConnection("GET /submit?firstname=&lastname=Swift" + \
+                          " HTTP/1.1\r\n\r\n")
 
     server.handle_connection(conn)
 
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert 'html' in conn.sent and "Swift" in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
 
-def test_handle_connection_index():
-    conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      "<a href='/content'>Content</a><br>" + \
-                      "<a href='/file'>File</a><br>" + \
-                      "<a href='/image'>Image</a><br><br>" + \
-                      "<p><u>Form Submission via GET</u></p>" + \
-                      "<form action='/submit' method='GET'>\n" + \
-                      "<p>first name: <input type='text' name='firstname'></p>\n" + \
-                      "<p>last name: <input type='text' name='lastname'></p>\n" + \
-                      "<p><input type='submit' value='Submit'>\n\n" + \
-                      "</form></p>" + \
-                      "<p><u>Form Submission via POST</u></p>" +\
-                      "<form action='/submit' method='POST'>\n" + \
-                      "<p>first name: <input type='text' name='firstname'></p>\n" + \
-                      "<p>last name: <input type='text' name='lastname'></p>\n" + \
-                      "<p><input type='submit' value='Submit'>\n\n" + \
-                      "</form></p>"
+# Tests a submit with no last name
+def test_handle_submit_no_last_name():
+    conn = FakeConnection("GET /submit?firstname=Taylor&lastname=" + \
+                          " HTTP/1.1\r\n\r\n")
 
     server.handle_connection(conn)
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
 
-def test_handle_connection_submit():
-    conn = FakeConnection("GET /submit?firstname=Matt&lastname=Ao HTTP/1.1\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      "Hello Mr. Matt Ao."
+    assert 'html' in conn.sent and "Taylor" in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
 
-    server.handle_connection(conn)
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
-
-
-# Post Tests --------
-
-def test_handle_post_index():
-    conn = FakeConnection("POST / HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      "<a href='/content'>Content</a><br>" + \
-                      "<a href='/file'>File</a><br>" + \
-                      "<a href='/image'>Image</a><br><br>" + \
-                      "<p><u>Form Submission via GET</u></p>" + \
-                      "<form action='/submit' method='GET'>\n" + \
-                      "<p>first name: <input type='text' name='firstname'></p>\n" + \
-                      "<p>last name: <input type='text' name='lastname'></p>\n" + \
-                      "<p><input type='submit' value='Submit'>\n\n" + \
-                      "</form></p>" + \
-                      "<p><u>Form Submission via POST</u></p>" +\
-                      "<form action='/submit' method='POST'>\n" + \
-                      "<p>first name: <input type='text' name='firstname'></p>\n" + \
-                      "<p>last name: <input type='text' name='lastname'></p>\n" + \
-                      "<p><input type='submit' value='Submit'>\n\n" + \
-                      "</form></p>"
+# test 404
+def test_handle_not_found():
+    conn = FakeConnection("GET /poop HTTP/1.0\r\n\r\n")
 
     server.handle_connection(conn)
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert 'HTTP/1.0 404' in conn.sent and 'want' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
 
-def test_handle_post_submit():
-    conn = FakeConnection("POST /submit HTTP/1.1\r\n\r\n + \
-                            firstname=Matt&lastname=Ao")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      "Hello Mr. Matt Ao."
+# Test POST connections
+
+# Test / requests
+def test_handle_connection_post():
+    conn = FakeConnection("POST / HTTP/1.0\r\n" + \
+      "Content-length: 0\r\n\r\n")
 
     server.handle_connection(conn)
-    assert conn.sent == expected_return, 'Got: %s' % (repr(conn.sent),)
+    assert 'HTTP/1.0 200' in conn.sent and 'form' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+
+# Test /submit requests (both types)
+def test_handle_submit_post():
+    conn = FakeConnection("POST /submit HTTP/1.1\r\n" + \
+                          "Content-Length: 31\r\n\r\n" + \
+                          "firstname=Taylor&lastname=Swift")
+
+    server.handle_connection(conn)
+    
+    assert 'HTTP/1.0 200' in conn.sent and "Hello Mrs." in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+    
+def test_handle_submit_post_multipart_and_form_data():
+    conn = FakeConnection("POST /submit " + \
+          "HTTP/1.1\r\nContent-length: 246\r\n\r\n------" + \
+          "WebKitFormBoundaryAaal27xQakxMcNYm\r\n" + \
+          'Content-Disposition: form-data; name="firstname"\r\n\r\nTaylor' + \
+          '\r\n------WebKitFormBoundaryAaal27xQakxMcNYm\r\n' + \
+          'Content-Disposition: form-data; name="lastname"\r\n\r\nSwift' + \
+          '\r\n------WebKitFormBoundaryAaal27xQakxMcNYm--")')
+
+    server.handle_connection(conn)
+    
+    assert 'HTTP/1.0 200' in conn.sent and "Hello Mrs." in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+
+# test 404
+def test_handle_not_found_post():
+    conn = FakeConnection("POST /butts HTTP/1.1\r\n" + \
+                          "Content-Length: 31\r\n\r\n" + \
+                          "firstname=Taylor&lastname=Swift")
+
+    server.handle_connection(conn)
+    assert 'HTTP/1.0 404' in conn.sent and 'want' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+
+# Handle large request
+def test_handle_long_request():
+    firstname = lastname = "asdfasdfasdfasdfasdf" * 100
+    conn = FakeConnection("POST /submit HTTP/1.1\r\n" + \
+                          "Content-Length: 4020\r\n\r\n" + \
+                          "firstname=%s&lastname=%s" % (firstname, lastname))
+
+    server.handle_connection(conn)
+    
+    assert 'HTTP/1.0 200' in conn.sent and "Hello Mrs." in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
+
+# Test an empty request
+def test_handle_empty_request():
+  conn = FakeConnection("\r\n\r\n")
+
+  server.handle_connection(conn)
+
+  assert 'HTTP/1.0 404' in conn.sent and 'want' in conn.sent, \
+    'Got: %s' % (repr(conn.sent),)
