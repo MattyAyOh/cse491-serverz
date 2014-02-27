@@ -25,150 +25,112 @@ class FakeConnection(object):
     def close(self):
         self.is_closed = True
 
-# Test basic GET calls.
-
-# Test path = /
-def test_handle_connection():
+def test_handle_connection_slash():
     conn = FakeConnection("GET / HTTP/1.0\r\n\r\n")
+    er = 'HTTP/1.0 200 OK\r\n'
 
-    server.handle_connection(conn)
+    server.handle_connection(conn, 80)
 
-    assert 'HTTP/1.0 200' in conn.sent and 'form' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-# Test path = /content
 def test_handle_connection_content():
     conn = FakeConnection("GET /content HTTP/1.0\r\n\r\n")
+    er = 'HTTP/1.0 200 OK\r\n'
 
-    server.handle_connection(conn)
+    server.handle_connection(conn, 80)
 
-    assert 'HTTP/1.0 200' in conn.sent and 'content' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-# Test path = /file
 def test_handle_connection_file():
     conn = FakeConnection("GET /file HTTP/1.0\r\n\r\n")
+    er = 'HTTP/1.0 200 OK\r\n'
 
-    server.handle_connection(conn)
+    server.handle_connection(conn, 80)
 
-    assert 'HTTP/1.0 200' in conn.sent and 'file' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-# Test path = /content
 def test_handle_connection_image():
     conn = FakeConnection("GET /image HTTP/1.0\r\n\r\n")
-    expected_return = 'HTTP/1.0 200 OK\r\n' + \
-                      'Content-type: text/html\r\n' + \
-                      '\r\n' + \
-                      '<h1>Wow. Such page. Very HTTP response</h1>' + \
-                      'This is some image.'
+    er = 'HTTP/1.0 200 OK\r\n'
 
-    server.handle_connection(conn)
-    print conn.sent
-    assert 'HTTP/1.0 200' in conn.sent and 'image' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    server.handle_connection(conn, 80)
 
-# Test path = /submit
-def test_handle_submit():
-    conn = FakeConnection("GET /submit?firstname=Taylor&lastname=Swift" + \
-                          " HTTP/1.1\r\n\r\n")
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-    server.handle_connection(conn)
+def test_get_form():
+    conn = FakeConnection("GET /form HTTP/1.0\r\n\r\n")
+    er = 'HTTP/1.0 200 OK\r\n'
 
-    assert 'html' in conn.sent and "Taylor" in conn.sent \
-      and 'Swift' in conn.sent, 'Got: %s' % (repr(conn.sent),)
+    server.handle_connection(conn, 80)
 
-# Test a submit with no first name
-def test_handle_submit_no_first_name():
-    conn = FakeConnection("GET /submit?firstname=&lastname=Swift" + \
-                          " HTTP/1.1\r\n\r\n")
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-    server.handle_connection(conn)
+def test_404():
+    conn = FakeConnection("GET /asdf HTTP/1.0\r\n\r\n")
+    er = 'HTTP/1.0 404 Not Found\r\n'
 
-    assert 'html' in conn.sent and "Swift" in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    server.handle_connection(conn, 80)
 
-# Tests a submit with no last name
-def test_handle_submit_no_last_name():
-    conn = FakeConnection("GET /submit?firstname=Taylor&lastname=" + \
-                          " HTTP/1.1\r\n\r\n")
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-    server.handle_connection(conn)
+def test_submit_get():
+    fname = "Ben"
+    lname = "Taylor"
+    conn = FakeConnection("GET /submit?firstname={0}&lastname={1} \
+                           HTTP/1.0\r\n\r\n".format(fname, lname))
+    er = 'HTTP/1.0 200 OK\r\n'
 
-    assert 'html' in conn.sent and "Taylor" in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    server.handle_connection(conn, 80)
 
-# test 404
-def test_handle_not_found():
-    conn = FakeConnection("GET /poop HTTP/1.0\r\n\r\n")
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)  
 
-    server.handle_connection(conn)
-    assert 'HTTP/1.0 404' in conn.sent and 'want' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+def test_submit_post_urlencoded():
+    fname = "Ben"
+    lname = "Taylor"
+    conn = FakeConnection("POST /submit HTTP/1.0\r\n" + \
+                           "Content-Length: 29\r\n" + \
+                           "Content-Type: application/x-www-form-urlencoded\r\n\r\n" + \
+                           "firstname={0}&lastname={1}\r\n".format(fname, lname))
+    er = 'HTTP/1.0 200 OK\r\n'
 
-# Test POST connections
+    server.handle_connection(conn, 80)
 
-# Test / requests
-def test_handle_connection_post():
-    conn = FakeConnection("POST / HTTP/1.0\r\n" + \
-      "Content-length: 0\r\n\r\n")
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-    server.handle_connection(conn)
-    assert 'HTTP/1.0 200' in conn.sent and 'form' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+def test_submit_post_multipart():
+    conn = FakeConnection("POST /submit HTTP/1.0\r\n" + \
+                          "Content-Length: 374\r\n" + \
+                          "Content-Type: multipart/form-data; " + \
+                          "boundary=32452685f36942178a5f36fd94e34b63\r\n\r\n" + \
+                          "--32452685f36942178a5f36fd94e34b63\r\n" + \
+                          "Content-Disposition: form-data; name=\"lastname\";" + \
+                          " filename=\"lastname\"\r\n\r\n" + \
+                          "taylor\r\n" + \
+                          "--32452685f36942178a5f36fd94e34b63\r\n" + \
+                          "Content-Disposition: form-data; name=\"firstname\";" + \
+                          " filename=\"firstname\"\r\n\r\n" + \
+                          "ben\r\n" + \
+                          "--32452685f36942178a5f36fd94e34b63\r\n" + \
+                          "Content-Disposition: form-data; name=\"key\";" + \
+                          " filename=\"key\"\r\n\r\n" + \
+                          "value\r\n" + \
+                          "--32452685f36942178a5f36fd94e34b63--\r\n"
+                    )
+    fname = 'ben'
+    lname = 'taylor'
+    er = 'HTTP/1.0 200 OK\r\n'
 
-# Test /submit requests (both types)
-def test_handle_submit_post():
-    conn = FakeConnection("POST /submit HTTP/1.1\r\n" + \
-                          "Content-Length: 31\r\n\r\n" + \
-                          "firstname=Taylor&lastname=Swift")
+    server.handle_connection(conn, 80)
 
-    server.handle_connection(conn)
-    
-    assert 'HTTP/1.0 200' in conn.sent and "Hello Mrs." in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
-    
-def test_handle_submit_post_multipart_and_form_data():
-    conn = FakeConnection("POST /submit " + \
-          "HTTP/1.1\r\nContent-length: 246\r\n\r\n------" + \
-          "WebKitFormBoundaryAaal27xQakxMcNYm\r\n" + \
-          'Content-Disposition: form-data; name="firstname"\r\n\r\nTaylor' + \
-          '\r\n------WebKitFormBoundaryAaal27xQakxMcNYm\r\n' + \
-          'Content-Disposition: form-data; name="lastname"\r\n\r\nSwift' + \
-          '\r\n------WebKitFormBoundaryAaal27xQakxMcNYm--")')
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)
 
-    server.handle_connection(conn)
-    
-    assert 'HTTP/1.0 200' in conn.sent and "Hello Mrs." in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+def test_submit_post_404():
+    conn = FakeConnection("POST /asdf HTTP/1.0\r\n" + \
+                          "Content-Length: 0\r\n" + \
+                          "Content-Type: application/x-www-form-urlencoded\r\n\r\n"
+                         )
+    server.handle_connection(conn, 80)
 
-# test 404
-def test_handle_not_found_post():
-    conn = FakeConnection("POST /butts HTTP/1.1\r\n" + \
-                          "Content-Length: 31\r\n\r\n" + \
-                          "firstname=Taylor&lastname=Swift")
+    er = 'HTTP/1.0 404 Not Found\r\n'
 
-    server.handle_connection(conn)
-    assert 'HTTP/1.0 404' in conn.sent and 'want' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
-
-# Handle large request
-def test_handle_long_request():
-    firstname = lastname = "asdfasdfasdfasdfasdf" * 100
-    conn = FakeConnection("POST /submit HTTP/1.1\r\n" + \
-                          "Content-Length: 4020\r\n\r\n" + \
-                          "firstname=%s&lastname=%s" % (firstname, lastname))
-
-    server.handle_connection(conn)
-    
-    assert 'HTTP/1.0 200' in conn.sent and "Hello Mrs." in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
-
-# Test an empty request
-def test_handle_empty_request():
-  conn = FakeConnection("\r\n\r\n")
-
-  server.handle_connection(conn)
-
-  assert 'HTTP/1.0 404' in conn.sent and 'want' in conn.sent, \
-    'Got: %s' % (repr(conn.sent),)
+    assert conn.sent[:len(er)] == er, 'Got: %s' % (repr(conn.sent),)

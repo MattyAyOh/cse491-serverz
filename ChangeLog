@@ -1,25 +1,28 @@
 2014-01-07  Titus Brown  <t@Titus-MacBook-Air-2.local>
+	* Initialized repository, created server.py and README.
 
- * Initialized repository, created server.py and README.
+2014-01-09  Ben Taylor	<taylo886@arctic.cse.msu.edu>
+	*	Updated server.py to respond with 200 OK, send "Hello World" html
 
-2014-01-19  Matthew Ao  <MatthewAo@mayo.local>
+2014-01-17  Ben Taylor  <taylo886@arctic.cse.msu.edu>
+	*	Updated server.py to respond to different URLs, post requests
+	*	Added a nose test script
+	*	Fixed server.py to pass nose tests
 
- * Added header to HTTP Response
- * Cleaned up code, HW1 Fixes
-
-2014-01-22 Matthew Ao <MatthewAo@mayo.local>
-
- * Finished HW2, Added ability to handle different paths
- * Added POST functionality
-
-2014-01-30 Matthew Ao <MatthewAo@mayo.local>
-
- * Finished HW3
-
-2014-02-06 Matthew Ao <MatthewAo@mayo.local>
-
- * Finished HW4
-
-2014-02-13 Matthew Ao <MatthewAo@mayo.local>
-
- * Finished HW5
+2014-01-23  Ben Taylor  <taylo886@arctic.cse.msu.edu>
+	*	Updated server.py to split  less
+	*	Replaced multiple if/else with dict
+	*	Updated tests slightly to match modified html content
+2014-01-30  Ben Taylor <taylo886@arctic.cse.msu.edu>
+	*	Revamp tests
+	*	Fix POST
+	*	Check and increase test coverage
+2014-02-05  Ben Taylor <taylo886@arctic.cse.msu.edu>
+	*	Fix FieldStorage
+	*	Update to work with arbitrary length requests
+	*	Refactor everything into handle_connection
+	*	Generally tidy up code
+	*	Templates with jinja2
+2014-02-13	Ben Taylor <taylo886@arctic.cse.msu.edu>
+	*	Update to work with unicode
+	*	Make app and server separate, wsgi compliant
