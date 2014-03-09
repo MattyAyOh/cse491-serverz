@@ -1,14 +1,17 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import random
 import socket
+from urlparse import urlparse, parse_qs
 import time
-from urlparse import urlparse
+import cgi
 from StringIO import StringIO
+import jinja2
 
 import quixote
-from quixote.demo import create_publisher
-#from quixote.demo.mini_demo import create_publisher
-#from quixote.demo.altdemo import create_publisher
+# from quixote.demo import create_publisher
+# from quixote.demo.mini_demo import create_publisher
+from quixote.demo.altdemo import create_publisher
 
 _the_app = None
 def make_app():
@@ -20,76 +23,78 @@ def make_app():
 
     return _the_app
 
-def handle_connection(conn):
-    # Start reading in data from the connection
-    req = conn.recv(1)
-    count = 0
-    env = {}
-    while req[-4:] != '\r\n\r\n':
-        req += conn.recv(1)
+def main():
+    s = socket.socket()
+    host = socket.gethostname() # Get local machine name
+    port = random.randint(8000,9000)
+    s.bind((host, 9997))
 
-    # Parse the headers we've received
-    req, data = req.split('\r\n',1)
+    print 'http://%s:%d/' % (host, port)
+    s.listen(5)
+
+    print 'Entering infinite loop; hit CTRL-C to exit'
+    while True:
+        c, (client_host, client_port) = s.accept()
+        print 'Got connection from', client_host, client_port
+        handle_connection(c)
+
+def handle_connection(conn):
+
+    headers_string = ''
+    while headers_string[-4:] != '\r\n\r\n':
+        headers_string += conn.recv(1)
+
+    init_list = headers_string.split('\r\n')[0].split(' ')
+    requestType = init_list[0]
+
+    url = urlparse(init_list[1])
+    path = url[2]
+    query = url[4]
+    args = parse_qs(query)
+
     headers = {}
-    for line in data.split('\r\n')[:-2]:
-        k, v = line.split(': ', 1)
-        headers[k.lower()] = v
-        
-    # Parse out the path and related info
-    path = urlparse(req.split(' ', 3)[1])
+    headers_list = headers_string.split('\r\n')
+
+    for i in range(1,len(headers_list)-2):
+        header = headers_list[i].split(': ', 1)
+        headers[header[0].lower()] = header[1]
+
+    env={}
     env['REQUEST_METHOD'] = 'GET'
-    env['PATH_INFO'] = path[2]
-    env['QUERY_STRING'] = path[4]
+    env['PATH_INFO'] = path
+    env['QUERY_STRING'] = query
     env['CONTENT_TYPE'] = 'text/html'
     env['CONTENT_LENGTH'] = 0
     env['SCRIPT_NAME'] = ''
 
-    def start_response(status, response_headers):
+    def start_response(status, headers_response):
         conn.send('HTTP/1.0 ')
         conn.send(status)
         conn.send('\r\n')
-        for pair in response_headers:
+        for pair in headers_response:
             key, header = pair
             conn.send(key + ': ' + header + '\r\n')
         conn.send('\r\n')
 
-    content = ''
-    if req.startswith('POST '):
+    content=''
+    if requestType == "POST":
         env['REQUEST_METHOD'] = 'POST'
         env['CONTENT_LENGTH'] = headers['content-length']
         env['CONTENT_TYPE'] = headers['content-type']
-        print headers['content-length']
 
-        while len(content) < int(headers['content-length']):
-            content += conn.recv(1)
+        content_length = int(headers['content-length'])
+        content = conn.recv(content_length)
 
     env['wsgi.input'] = StringIO(content)
-    appl = make_app()
-    result = appl(env, start_response)
+
+    wsgi = make_app()
+    result = wsgi(env, start_response)
+
     for data in result:
         conn.send(data)
 
     conn.close()
 
-def main():
-    s = socket.socket()         # Create a socket object
-    host = socket.getfqdn() # Get local machine name
-    port = random.randint(8000, 9999)
-    s.bind((host, port))        # Bind to the port
-
-    print 'Starting server on', host, port
-    print 'The Web server URL for this would be http://%s:%d/' % (host, port)
-
-    s.listen(5)                 # Now wait for client connection.
-    
-
-    print 'Entering infinite loop; hit CTRL-C to exit'
-    while True:
-        # Establish connection with client.    
-        c, (client_host, client_port) = s.accept()
-        print 'Got connection from', client_host, client_port
-
-        handle_connection(c)
 
 if __name__ == '__main__':
-   main()
+    main()
