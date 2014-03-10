@@ -21,8 +21,8 @@ import imageapp
 # from quixote.demo.altdemo import create_publisher
 # p = create_publisher()
 
-imageapp.setup()
-p = imageapp.create_publisher()
+# imageapp.setup()
+# p = imageapp.create_publisher()
 
 
 def main():
@@ -99,8 +99,8 @@ def handle_connection(conn, port):
 
     env['wsgi.input'] = StringIO(content)
 
-    wsgi = quixote.get_wsgi_app()
-    # wsgi = make_app()
+    # wsgi = quixote.get_wsgi_app()
+    wsgi = make_app()
     wsgi = validator(wsgi)
     result = wsgi(env, start_response)
 
