@@ -18,18 +18,18 @@ import imageapp
 
 # from quixote.demo import create_publisher
 # from quixote.demo.mini_demo import create_publisher
-from quixote.demo.altdemo import create_publisher
-p = create_publisher()
+# from quixote.demo.altdemo import create_publisher
+# p = create_publisher()
 
-# imageapp.setup()
-# p = imageapp.create_publisher()
+imageapp.setup()
+p = imageapp.create_publisher()
 
 
 def main():
     s = socket.socket()
     host = socket.gethostname() # Get local machine name
     # port = random.randint(8000,9000)
-    port = 9999
+    port = 9998
     s.bind((host, port))
 
     print 'http://%s:%d/' % (host, port)
@@ -108,6 +108,7 @@ def handle_connection(conn, port):
     for data in result:
         conn.send(data)
 
+    result.close()
     conn.close()
 
 if __name__ == '__main__':
