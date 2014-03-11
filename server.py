@@ -21,15 +21,15 @@ import imageapp
 # from quixote.demo.altdemo import create_publisher
 # p = create_publisher()
 
-# imageapp.setup()
-# p = imageapp.create_publisher()
+imageapp.setup()
+p = imageapp.create_publisher()
 
 
 def main():
     s = socket.socket()
-    host = socket.gethostname() # Get local machine name
-    # port = random.randint(8000,9000)
-    port = 9998
+    host = socket.getfqdn() # Get local machine name
+    port = random.randint(8000,9000)
+    # port = 9998
     s.bind((host, port))
 
     print 'http://%s:%d/' % (host, port)
@@ -69,7 +69,7 @@ def handle_connection(conn, port):
     env['CONTENT_TYPE'] = 'text/html'
     env['CONTENT_LENGTH'] = str(0)
     env['SCRIPT_NAME'] = ''
-    env['SERVER_NAME'] = socket.gethostname()
+    env['SERVER_NAME'] = socket.getfqdn()
     env['SERVER_PORT'] = str(port)
     env['wsgi.version'] = (1, 0)
     env['wsgi.errors'] = stderr
@@ -94,13 +94,20 @@ def handle_connection(conn, port):
         env['CONTENT_LENGTH'] = headers['content-length']
         env['CONTENT_TYPE'] = headers['content-type']
 
+        print "CONTENTLENGTH!!!"
+        print env['CONTENT_LENGTH']
         content_length = int(headers['content-length'])
-        content = conn.recv(content_length)
+
+        # !!! On Arctic, this drops data
+        # content = conn.recv(content_length)
+
+        while len(content) < content_length:
+            content += conn.recv(1)
 
     env['wsgi.input'] = StringIO(content)
 
-    # wsgi = quixote.get_wsgi_app()
-    wsgi = make_app()
+    wsgi = quixote.get_wsgi_app()
+    # wsgi = make_app()
     wsgi = validator(wsgi)
     result = wsgi(env, start_response)
 
