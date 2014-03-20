@@ -36,3 +36,9 @@
 
  * Fixed up HW7
 
+2014-03-20 Matthew Ao <MatthewAo@mayo.local>
+
+ * Finished HW8
+ * Opted for CSS project
+ * Downloaded a stylesheet, and integrated it into jinja templates
+
