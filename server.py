@@ -33,8 +33,6 @@ def main():
 
     s = socket.socket()
     host = socket.getfqdn() # Get local machine name
-    port = random.randint(8000,9000)
-    # port = 9998
     port = int(argv.p[0])
     s.bind((host, port))
 
@@ -56,6 +54,8 @@ def handle_connection(conn, port, app):
     init_list = headers_string.split('\r\n')[0].split(' ')
     requestType = init_list[0]
 
+    print init_list
+
     url = urlparse(init_list[1])
     path = url[2]
     query = url[4]
@@ -67,6 +67,7 @@ def handle_connection(conn, port, app):
     for i in range(1,len(headers_list)-2):
         header = headers_list[i].split(': ', 1)
         headers[header[0].lower()] = header[1]
+
 
     env={}
     env['REQUEST_METHOD'] = 'GET'

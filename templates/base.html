@@ -1,12 +1,37 @@
 <!DOCTYPE html>
 <html>
 	<head>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title> MattyAyOh: {{ path }} </title>
-        <link rel="stylesheet" type="text/css" href="default.css" />
+        <link rel="stylesheet" type="text/css" href="/css" />
 	</head>
 	<body>
+    <div id="upbg"></div>
+    <div id="outer">
+        <div id="header">
+                <div id="headercontent">
+                        <h1>MattyAyOh's Web Server<sup>1.0</sup></h1>
+                        <h2>'Zenlike' Stylesheet</h2>
+                </div>
+        </div>
+        <form method="post" action="">
+                <div id="search">
+                        <input type="text" class="text" maxlength="64" name="keywords" />
+                        <input type="submit" class="submit" value="Search" />
+                </div>
+        </form>
+        <div id="headerpic"></div>
+
 		{% block content %}
 		{% endblock %}
+
+        <div id="footer">
+                <div class="left">&copy; 2013 Matthew Ao. All rights reserved.</div>
+                <div class="right">Design by <a href="http://www.nodethirtythree.com/">NodeThirtyThree Design</a></div>
+        </div>
+
+    </div>
 	</body>
 </html>

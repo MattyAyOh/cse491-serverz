@@ -1,4 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
-		<h1>Welcome, {{ firstname }} {{ lastname }}.</h1>
+<div id="menu">
+        <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/content">Content</a></li>
+                <li><a href="/file">Files</a></li>
+                <li><a href="/image">Images</a></li>
+        </ul>
+</div>
+<div id="menubottom"></div>
+
+
+<div id="content">
+        <div id="normalcontent">
+                <h1><strong>Welcome, {{ firstname }} {{ lastname }}.</strong></h1>
+                <div class="contentarea">
+                        <p>Keep movin'</p>
+                </div>
+        </div>
+</div>
 {% endblock %}

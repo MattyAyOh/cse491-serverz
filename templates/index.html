@@ -1,31 +1,89 @@
 {% extends "base.html" %}
 {% block content %}
-        <h1>Hello, world</h1>
-        <img src="{{ img }}", alt="IMAGE N/A"/> <br/><br/>
-        This is MattyAyOh's web server.<br />
+<div id="menu">
+        <ul>
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/content">Content</a></li>
+                <li><a href="/file">Files</a></li>
+                <li><a href="/image">Images</a></li>
+        </ul>
+</div>
+<div id="menubottom"></div>
 
-        <p><u>Form Submission via GET</u></p>
-        <form action='/submit' method='GET'>
-        <p>first name: <input type='text' name='firstname'></p>
-        <p>last name: <input type='text' name='lastname'></p>
-        <p><input type='submit' value='Submit'>
-        </form></p>
 
-        <p><u>Form Submission via POST</u></p>
-        <form action='/submit' method='POST'>
-        <p>first name: <input type='text' name='firstname'></p>
-        <p>last name: <input type='text' name='lastname'></p>
-        <p><input type='submit' value='Submit'>
-        </form></p>
+<div id="content">
+        <div id="normalcontent">
+                <h3><strong>Mmm</strong><span> by Matt Ao</span></h3>
+                <div class="contentarea">
 
-        <p><u>Form Submission via POST (multipart/form-data)</u></p>
-        <form action='/submit' method='POST' enctype='multipart/form-data'>
-        <p>first name: <input type='text' name='firstname'></p>
-        <p>last name: <input type='text' name='lastname'></p>
-        <p><input type='submit' value='Submit'>
-        </form></p>
+                        <img src="/assets/images/pic1.jpg" class="left" alt="A chinese lion statue" />
+                        <p>#1 Web Server</p>
+                </div>
+        </div>
 
-                <a href='/content'>Content</a><br />
-                <a href='/file'>Files</a><br />
-                <a href='/image'>Images</a><br />
+
+        <div class="divider1"></div>
+
+        <div id="primarycontainer">
+                <div id="primarycontent">
+                        <div class="post">
+                                <h4>GET Request Form Submission</h4>
+                                <div class="contentarea">
+<form action='/submit' method='GET'>
+<p>first name: <input type='text' name='firstname'></p>
+<p>last name: <input type='text' name='lastname'></p>
+<p><input type='submit' value='Submit'></p>
+</form>
+                                        <ul class="controls">
+                                                <li><a href="#" class="printerfriendly">Printer Friendly</a></li>
+                                                <li><a href="#" class="comments">Comments (18)</a></li>
+                                                <li><a href="#" class="more">Read More</a></li>
+                                        </ul>
+                                </div>
+                        </div>
+
+                        <div class="divider2"></div>
+
+                        <div class="post">
+                                <h4>POST Request Form Submission</h4>
+                                <div class="contentarea">
+
+<form action='/submit' method='POST'>
+<p>first name: <input type='text' name='firstname'></p>
+<p>last name: <input type='text' name='lastname'></p>
+<p><input type='submit' value='Submit'></p>
+</form>
+
+                                        <ul class="controls">
+                                                <li><a href="#" class="printerfriendly">Printer Friendly</a></li>
+                                                <li><a href="#" class="comments">Comments (18)</a></li>
+                                                <li><a href="#" class="more">Read More</a></li>
+                                        </ul>
+                                </div>
+                        </div>
+
+                        <div class="divider2"></div>
+
+                        <div class="post">
+                                <h4>POST (multipart/form-data) Form Submission</h4>
+                                <div class="contentarea">
+
+<form action='/submit' method='POST' enctype='multipart/form-data'>
+<p>first name: <input type='text' name='firstname'></p>
+<p>last name: <input type='text' name='lastname'></p>
+<p><input type='submit' value='Submit'></p>
+</form>
+                                        <ul class="controls">
+                                                <li><a href="#" class="printerfriendly">Printer Friendly</a></li>
+                                                <li><a href="#" class="comments">Comments (18)</a></li>
+                                                <li><a href="#" class="more">Read More</a></li>
+                                        </ul>
+                                </div>
+                        </div>
+
+                        <!-- Primary content area end -->
+                </div>
+        </div>
+
+</div>
 {% endblock %}
