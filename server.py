@@ -54,8 +54,6 @@ def handle_connection(conn, port, app):
     init_list = headers_string.split('\r\n')[0].split(' ')
     requestType = init_list[0]
 
-    print init_list
-
     url = urlparse(init_list[1])
     path = url[2]
     query = url[4]

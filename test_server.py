@@ -61,7 +61,7 @@ def test_submit_get():
 
 def test_submit_post_urlencoded():
     conn = FakeConnection("POST /submit HTTP/1.0\r\n" + \
-                           "Content-Length: 29\r\n" + \
+                           "Content-Length: 26\r\n" + \
                            "Content-Type: application/x-www-form-urlencoded\r\n\r\n" + \
                            "firstname=Matt&lastname=Ao\r\n")
     server.handle_connection(conn, 80, "myapp")
