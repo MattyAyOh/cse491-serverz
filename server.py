@@ -26,14 +26,14 @@ def main():
                             default='myapp', \
                             choices=['myapp', 'image', 'altdemo'], \
                             dest='app')
-    args.add_argument('-p', metavar='Port', type=str, nargs=1, \
-                            default='9999', dest='p')
+    args.add_argument('-p', metavar='Port', type=int, nargs=1, \
+                            default=-1, dest='p')
     argv = args.parse_args()
 
 
     s = socket.socket()
     host = socket.getfqdn() # Get local machine name
-    port = int(argv.p[0])
+    port = argv.p[0] if argv.p != -1 else 9999
     s.bind((host, port))
 
     print 'http://%s:%d/' % (host, port)
