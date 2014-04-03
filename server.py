@@ -13,7 +13,8 @@ from sys import stderr
 from argparse import ArgumentParser
 import quixote
 import imageapp
-
+import quotes
+import chat
 
 # from quixote.demo import create_publisher
 # from quixote.demo.mini_demo import create_publisher
@@ -24,7 +25,8 @@ def main():
     args = ArgumentParser(description='Set up WSGI server')
     args.add_argument('-A', metavar='App', type=str, nargs=1, \
                             default='myapp', \
-                            choices=['myapp', 'image', 'altdemo'], \
+                            choices=['myapp', 'image', 'altdemo', 'quotes',
+                            'chat'], \
                             dest='app')
     args.add_argument('-p', metavar='Port', type=int, nargs=1, \
                             default=-1, dest='p')
@@ -127,6 +129,12 @@ def handle_connection(conn, port, app):
             pass
         imageapp.setup()
         wsgi = quixote.get_wsgi_app()
+
+    elif app == "quotes":
+        wsgi = quotes.get_wsgi_app('./quotes/quotes.txt', './quotes/html')
+
+    elif app == "chat":
+        wsgi = chat.get_wsgi_app('./chat/html')
 
     else:
         from app import make_app
