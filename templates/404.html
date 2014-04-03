@@ -1,5 +1,26 @@
 {% extends "base.html" %}
 {% block content %}
-	<h1>Oops! Something went wrong!</h1>
-	Path: "{{ path }}" does not exist.<br />
+<div id="menu">
+        <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/content">Content</a></li>
+                <li><a href="/file">Files</a></li>
+                <li><a href="/image">Images</a></li>
+        </ul>
+</div>
+<div id="menubottom"></div>
+
+
+<div id="content">
+        <div id="normalcontent">
+                <h1><strong>Oops! Something went wrong!</strong></h1>
+                <div class="contentarea">
+                        <img src="/assets/images/pic2.jpg" class="left" alt="A chinese lion statue" />
+                        <p>Path: "{{ path }}" does not exist.</p>
+                </div>
+        </div>
+
+
+</div>
 {% endblock %}
+

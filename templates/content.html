@@ -1,4 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-    <h1>Content Page</h1>
+<div id="menu">
+        <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/content" class="active">Content</a></li>
+                <li><a href="/file">Files</a></li>
+                <li><a href="/image">Images</a></li>
+        </ul>
+</div>
+<div id="menubottom"></div>
+
+
+<div id="content">
+        <div id="normalcontent">
+                <h1><strong>Here's some Content!</strong></h1>
+                <div class="contentarea">
+                        <img src="/assets/images/pic3.jpg" class="left" alt="A chinese lion statue" />
+                        <p>Just kidding there's nothing here</p>
+                </div>
+        </div>
+
+
+</div>
 {% endblock %}
