@@ -42,3 +42,17 @@
  * Opted for CSS project
  * Downloaded a stylesheet, and integrated it into jinja templates
 
+2014-03-27 Matthew Ao <MatthewAo@mayo.local>
+
+ * Finished HW9
+ * Support TIFF and Comments
+
+2014-04-03 Matthew Ao <MatthewAo@mayo.local>
+
+ * Finished HW10
+ * Display all pictures uploaded
+
+2014-04-10 Matthew Ao <MatthewAo@mayo.local>
+
+ * Working on HW11
+ * Putting server on AWS

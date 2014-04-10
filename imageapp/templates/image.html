@@ -1,8 +1,32 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 Here is your image:
 <p>
 <img width=40% src='image_raw?special=latest'/>
+<p>
+<h2>Comments</h2>
+<ul id="comments">
+</ul>
+<input type="text" id='add_comment' />
+<button id="add_comment_button">Add Comment</button>
+<script type="text/javascript">
+$.post("get_comments",
+    function(xml) {
+        console.log(xml)
+        $("comment", xml).each( function(id) {
+            comment = $("comment", xml).get(id)
+            $(comments).append("<li>" + ($("text", comment).text()) + "</li>")
+        });
+    });
 
+$("#add_comment_button").click(function() {
+    $.post("add_comment?comment=" + $("#add_comment").val())
+    .success(function(){
+        $("#comments").append("<li>" + $("#add_comment").val() + "</li>")
+        $("#add_comment").val('')
+    })
+});
+</script>
 {% endblock %}
