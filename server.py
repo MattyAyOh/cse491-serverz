@@ -1,3 +1,4 @@
+#HW10
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
@@ -10,26 +11,32 @@ from StringIO import StringIO
 import jinja2
 from wsgiref.validate import validator
 from sys import stderr
-
-from app import make_app
+from argparse import ArgumentParser
 import quixote
 import imageapp
-
+import quotes
+import chat
 
 # from quixote.demo import create_publisher
 # from quixote.demo.mini_demo import create_publisher
 # from quixote.demo.altdemo import create_publisher
-# p = create_publisher()
-
-imageapp.setup()
-p = imageapp.create_publisher()
 
 
 def main():
+    args = ArgumentParser(description='Set up WSGI server')
+    args.add_argument('-A', metavar='App', type=str, nargs=1, \
+                            default='myapp', \
+                            choices=['myapp', 'image', 'altdemo', 'quotes',
+                            'chat'], \
+                            dest='app')
+    args.add_argument('-p', metavar='Port', type=int, nargs=1, \
+                            default=-1, dest='p')
+    argv = args.parse_args()
+
+
     s = socket.socket()
     host = socket.getfqdn() # Get local machine name
-    port = random.randint(8000,9000)
-    # port = 9998
+    port = argv.p[0] if argv.p != -1 else 9999
     s.bind((host, port))
 
     print 'http://%s:%d/' % (host, port)
@@ -39,9 +46,9 @@ def main():
     while True:
         c, (client_host, client_port) = s.accept()
         print 'Got connection from', client_host, client_port
-        handle_connection(c, port)
+        handle_connection(c, port, argv.app[0])
 
-def handle_connection(conn, port):
+def handle_connection(conn, port, app):
 
     headers_string = ''
     while headers_string[-4:] != '\r\n\r\n':
@@ -61,6 +68,7 @@ def handle_connection(conn, port):
     for i in range(1,len(headers_list)-2):
         header = headers_list[i].split(': ', 1)
         headers[header[0].lower()] = header[1]
+
 
     env={}
     env['REQUEST_METHOD'] = 'GET'
@@ -106,8 +114,33 @@ def handle_connection(conn, port):
 
     env['wsgi.input'] = StringIO(content)
 
-    wsgi = quixote.get_wsgi_app()
-    # wsgi = make_app()
+    if app == 'altdemo':
+        from quixote.demo.altdemo import create_publisher
+        try:
+            p = create_publisher()
+        except RuntimeError:
+            pass
+        wsgi = quixote.get_wsgi_app()
+
+    elif app == 'image':
+        from imageapp import create_publisher
+        try:
+            p = create_publisher()
+        except RuntimeError:
+            pass
+        imageapp.setup()
+        wsgi = quixote.get_wsgi_app()
+
+    elif app == "quotes":
+        wsgi = quotes.get_wsgi_app('./quotes/quotes.txt', './quotes/html')
+
+    elif app == "chat":
+        wsgi = chat.get_wsgi_app('./chat/html')
+
+    else:
+        from app import make_app
+        wsgi = make_app()
+
     wsgi = validator(wsgi)
     result = wsgi(env, start_response)
 

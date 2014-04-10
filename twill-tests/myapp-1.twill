@@ -1,0 +1,26 @@
+go /
+code 200
+
+go /content
+code 200
+
+go /
+code 200
+
+go /file
+code 200
+
+go /
+code 200
+
+go /image
+code 200
+
+go /
+code 200
+
+formvalue 1 firstname Honored
+formvalue 1 lastname Guest
+submit
+
+find "Welcome, Honored Guest."
