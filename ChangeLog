@@ -41,16 +41,21 @@
  * Finished HW8
  * Opted for CSS project
  * Downloaded a stylesheet, and integrated it into jinja templates
+	* In image app created a method to serve the css file
 
 2014-03-27 Matthew Ao <MatthewAo@mayo.local>
 
  * Finished HW9
  * Support TIFF and Comments
+	* Imageapp will parse file name for the extension and serve a file with the correct content type
+	* Image class stores comments
 
 2014-04-03 Matthew Ao <MatthewAo@mayo.local>
 
  * Finished HW10
- * Display all pictures uploaded
+ * Display all pictures uploaded & add URL handler so images are referred to by number
+	* Created a list of Images, the class created in previous homework.  The number in the URL will go to the index in the list.  
+	* Using this, created a new image_list.html file that makes an ajax call to iterate through the image_list and serve all the images in a smaller thumbnail size
 
 2014-04-10 Matthew Ao <MatthewAo@mayo.local>
 

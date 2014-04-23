@@ -1,0 +1,77 @@
+DONE:
+———
+Swipe a template from oswd.org and put it in place on your imageapp server. (5 pts; browser_app)
+
+Change imageapp to support JPEG and TIFF. (5 pts; app_feature)
+
+Add the ability to comment on images. (5 pts.; app_feature)
+
+Write a URL handler so that each image is referred to by its number, e.g. /image_raw/10; make it so that going to the latest image in your imageapp redirects to the right image number. (5 pts; app_feature)
+
+Add a URL that provides a list of images, resized to thumbnails (you can just img size, not actual resizing – that will be a separate project ;). (5 pts; app_feature)
+
+Write down clear instructions for setting up a new Ubuntu machine on a cloud service of your choice (I have some documentation for Amazon) and installing the imageapp server on port 80. (5 pts; hosting)
+
+After #14, set up a domain name and static IP address for your site. (5 pts; hosting)
+
+Implement starring, ranking, and a simple recommendation system for your image app image list (5 pts; app_feature)
+
+
+
+
+Want to do Next:
+———
+Add account creation, login, and authentication (5 pts; app_feature)
+
+Add username login via cookies and tracking of image by “owner” (the person who uploaded it). Allow the owner to delete it. (5 pts.; app_feature)
+
+Implement secure cookies (see #9); use UUID. (5 pts; app_feature)
+
+Add image “metadata” uploading, storage, and retrieval: image name, description, etc. (5 pts; app_feature)
+
+
+
+
+
+Far down the line:
+———
+Reimplement the imageapp functionality (minus the silly JavaScript) in your own app.py, or Django or flask. (5 pts each; app_framework)
+
+Write a WSGI middleware component that does recording and playback of all WSGI traffic between server and component. (5 pts; wsgi)
+
+Add image metadata search (find image by ...) (5 pts.; app_feature)
+
+
+Write something that prevents denial of services by uploading gigabyte files, or “forever” connections that upload things really slowly. Be sure to write a client-side test. (5 pts; app_feature)
+
+Implement AJAX image upload with JQuery. (5 pts; ajax)
+
+Implement a Python client to upload images via a JSON-RPC interface. (5 pts; api)
+
+Implement multithreading in your WSGI server (see http://docs.python.org/2/library/threading.html) and explain how you know it’s working. (5 pts; wsgi)
+
+Implement multiprocessing (shared nothing in memory) in your WSGI server (see http://docs.python.org/2/library/multiprocessing.html) and explain how you know it’s working (5 pts; wsgi)
+
+Implement asynchronous I/O (not multithreading/multiprocessing, but still handling multiple connections) in your WSGI server, and explain how you know it’s working (5 pts; wsgi)
+
+Write a chef recipe for installing your software from github on a Linux VM/ cloud computer. (5 pts; hosting)
+
+Make a thumbnail list using server-side resizing on the fly (in Python code, using PIL or some other image manipulation library). The distinguishing feature here should be that large images are not downloaded to the browser and resized there (as wougitld happen if you used image attributes; see #5). (5 pts; app_feature)
+
+Make a generally useful fake data set to support #6 (~10-20 images, names, etc.) for others to use in testing their own server. (5 pts; platform)
+
+Implement polling for your chat app. (5 pts; browser_app)
+
+Implement Web sockets for chat app updating (5 pts; ajax)
+
+Add disqus to your Web site (2.5 pts; browser_app)
+
+After #6, implement an RSS feed for new image uploads (2.5 pts; app_feature)
+
+Add data persistence in a NoSQL database (5 pts; app_feature)
+
+Add data persistence in sqlite or MySQL or PostgreSQL (5 pts; app_feature)
+
+Reimplement the most basic imageapp functionality (uploading and serving images) in the Scala Play framework. (5 pts; app_framework)
+
+Reimplement the most basic imageapp functionality in the Node.js framework. (5 pts; app_framework)

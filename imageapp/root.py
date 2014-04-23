@@ -62,16 +62,19 @@ class RootDirectory(Directory):
 
     @export(name='image_count')
     def image_count(self):
-        return len(image.images)
+        return image.get_num_images()
 
     @export(name='image_raw')
     def image_raw(self):
         response = quixote.get_response()
         request = quixote.get_request()
+
         try:
-            img = image.get_image(int(request.form['num']))
-        except KeyError:
-            img = image.get_latest_image()
+            i = int(request.form['num'])
+        except:
+            i = -1
+
+        img = image.retrieve_image(i)
 
         filename = img.filename
         if filename.lower() in ('jpg', 'jpeg'):
@@ -88,13 +91,12 @@ class RootDirectory(Directory):
         request = quixote.get_request()
 
         try:
-            img = image.get_image(int(request.form['num']))
-        except KeyError:
-            img = image.get_latest_image()
+            i = int(request.form['num'])
+        except:
+            i = -1
 
         all_comments = []
-        for comment in img.get_comments():
-            print comment
+        for comment in image.get_comments(i):
             all_comments.append("""\
     <comment>
      <text>%s</text>
@@ -116,13 +118,49 @@ class RootDirectory(Directory):
         request = quixote.get_request()
 
         try:
-            img = image.get_image(int(request.form['num']))
-        except KeyError:
-            img = image.get_latest_image()
+            i = int(request.form['num'])
+        except:
+            i = -1
 
         try:
             comment = request.form['comment']
         except:
             return
 
-        img.add_comment(comment)
+        image.add_comment(i, comment)
+
+    @export(name='get_score')
+    def get_score(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+
+        try:
+            i = int(request.form['num'])
+        except:
+            i = -1
+
+        return image.get_image_score(i)
+
+    @export(name='increment_score')
+    def increment_score(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+
+        try:
+            i = int(request.form['num'])
+        except:
+            i = -1
+
+        image.increment_image_score(i)
+
+    @export(name='decrement_score')
+    def decrement_score(self):
+        response = quixote.get_response()
+        request = quixote.get_request()
+
+        try:
+            i = int(request.form['num'])
+        except:
+            i = -1
+
+        image.decrement_image_score(i)

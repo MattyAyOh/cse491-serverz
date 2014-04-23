@@ -1,21 +1,13 @@
-#HW10
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import random
-
 import socket
 from urlparse import urlparse, parse_qs
 import time
-import cgi
 from StringIO import StringIO
-import jinja2
 from wsgiref.validate import validator
 from sys import stderr
 from argparse import ArgumentParser
-import quixote
-import imageapp
-import quotes
-import chat
 
 # from quixote.demo import create_publisher
 # from quixote.demo.mini_demo import create_publisher
@@ -27,7 +19,7 @@ def main():
     args.add_argument('-A', metavar='App', type=str, nargs=1, \
                             default='myapp', \
                             choices=['myapp', 'image', 'altdemo', 'quotes',
-                            'chat'], \
+                            'chat', 'cookie'], \
                             dest='app')
     args.add_argument('-p', metavar='Port', type=int, nargs=1, \
                             default=-1, dest='p')
@@ -35,6 +27,7 @@ def main():
 
 
     s = socket.socket()
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     host = socket.getfqdn() # Get local machine name
     port = argv.p[0] if argv.p != -1 else 9999
     s.bind((host, port))
@@ -49,28 +42,28 @@ def main():
         handle_connection(c, port, argv.app[0])
 
 def handle_connection(conn, port, app):
-
+    headers = {}
     headers_string = ''
+    env={}
+
     while headers_string[-4:] != '\r\n\r\n':
         headers_string += conn.recv(1)
 
-    init_list = headers_string.split('\r\n')[0].split(' ')
+    initLine, headerData = headers_string.split('\r\n', 1)
+
+    init_list = initLine.split(' ')
     requestType = init_list[0]
 
     url = urlparse(init_list[1])
     path = url[2]
     query = url[4]
-    args = parse_qs(query)
 
-    headers = {}
-    headers_list = headers_string.split('\r\n')
+    headers_list = headers_string.split('\r\n')[1:]
 
-    for i in range(1,len(headers_list)-2):
-        header = headers_list[i].split(': ', 1)
-        headers[header[0].lower()] = header[1]
+    for line in headerData.split('\r\n')[:-2]:
+        key, val = line.split(': ', 1)
+        headers[key.lower()] = val
 
-
-    env={}
     env['REQUEST_METHOD'] = 'GET'
     env['PATH_INFO'] = path
     env['QUERY_STRING'] = query
@@ -99,8 +92,11 @@ def handle_connection(conn, port, app):
     content=''
     if requestType == "POST":
         env['REQUEST_METHOD'] = 'POST'
-        env['CONTENT_LENGTH'] = headers['content-length']
-        env['CONTENT_TYPE'] = headers['content-type']
+        env['CONTENT_LENGTH'] = str(headers['content-length'])
+        try:
+            env['CONTENT_TYPE'] = headers['content-type']
+        except:
+            pass
 
         print "CONTENTLENGTH!!!"
         print env['CONTENT_LENGTH']
@@ -115,6 +111,7 @@ def handle_connection(conn, port, app):
     env['wsgi.input'] = StringIO(content)
 
     if app == 'altdemo':
+        import quixote
         from quixote.demo.altdemo import create_publisher
         try:
             p = create_publisher()
@@ -123,19 +120,29 @@ def handle_connection(conn, port, app):
         wsgi = quixote.get_wsgi_app()
 
     elif app == 'image':
+        import quixote
+        import imageapp
         from imageapp import create_publisher
         try:
             p = create_publisher()
+            imageapp.setup()
         except RuntimeError:
             pass
-        imageapp.setup()
+
         wsgi = quixote.get_wsgi_app()
 
     elif app == "quotes":
+        import quotes
         wsgi = quotes.get_wsgi_app('./quotes/quotes.txt', './quotes/html')
 
     elif app == "chat":
+        import chat
         wsgi = chat.get_wsgi_app('./chat/html')
+
+    elif app == "cookie":
+        import cookieapp
+        wsgi = cookieapp.wsgi_app
+
 
     else:
         from app import make_app

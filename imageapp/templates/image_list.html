@@ -1,20 +1,16 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-<h2>Here are all of the images that have been uploaded!</h2>
-(most recently uploaded first)
+<h1>All Images:</h1>
 <div id="imageContainer">
 </div>
 <script type="text/javascript">
-    $.post("image_count",
-         function(count) {
-            count = parseInt(count);
-            for (var i = count - 1; i >= 0; i--) {
-                $("#imageContainer").append("<div style='padding-top:10px'>" +
-                    "<img width='200' src='image_raw?num=" + i + "' /></div>");
-            }
-         }
-    );
+$.post("image_count",
+     function(count) {
+        count = parseInt(count);
+        for (var i = count; i > 0; i--) {
+                $("#imageContainer").append("<a href='/image?num=" + i + "'><img width='400' src='image_raw?num=" + i + "' /></a>");
+        }
+    }
+);
 </script>
 {% endblock %}

@@ -1,0 +1,8 @@
+go /
+notfind favorite_color
+
+follow set
+find "favorite_color=red"
+
+follow del
+notfind "favorite_color"
