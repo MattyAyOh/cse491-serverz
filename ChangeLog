@@ -60,9 +60,17 @@
 2014-04-10 Matthew Ao <MatthewAo@mayo.local>
 
  * Working on HW11
- * Putting server on AWS
+ * Running server on AWS, Bought a domain, mattao.com that points to EC2 instance
+	* See README for more information
 
 2014-04-17 Matthew Ao <MatthewAo@mayo.local>
 
  * HW12
- * Implemented cookies
+ * Added ability to rank images
+	* Added another property to the Image class that stores the score
+
+2014-04-22 Matthew Ao <MatthewAo@mayo.local>
+
+ * HW13
+ * Fixed issue with content-type not being lowercase
+ * Working on adding users (Will get it done before Thursday)
