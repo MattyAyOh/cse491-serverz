@@ -73,4 +73,8 @@
 
  * HW13
  * Fixed issue with content-type not being lowercase
- * Working on adding users (Will get it done before Thursday)
+ * Added account creation/login & account cookies/tracking image owner
+	* Added a user table in the database
+	* Used javascript to determine if a user was logged in 
+	* Options to login/logout & create user put into the index.html
+	* When an image is uploaded, also attached the current user to the image 

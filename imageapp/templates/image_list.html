@@ -1,16 +1,31 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h1>All Images:</h1>
+<div id="menu">
+        <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="upload">Upload</a></li>
+                <li><a href="image">Latest Image</a></li>
+                <li><a href="image_list" class="active">All Images</a></li>
+        </ul>
+</div>
+<div class="contentTitle">
+</div>
 <div id="imageContainer">
 </div>
 <script type="text/javascript">
-$.post("image_count",
-     function(count) {
-        count = parseInt(count);
-        for (var i = count; i > 0; i--) {
-                $("#imageContainer").append("<a href='/image?num=" + i + "'><img width='400' src='image_raw?num=" + i + "' /></a>");
-        }
-    }
-);
+    $.post("image_numbers",
+         function(numbers) {
+            numbers = numbers.replace('[', '')
+            numbers = numbers.replace(']', '')
+            numbers = numbers.split(', ')
+            for (var i = numbers.length - 1; i >= 0; i--) {
+                console.log(parseInt(numbers[i]))
+
+                $("#imageContainer").append("<a href='/image?num=" + numbers[i] + "'>" +
+                    "<img width='200' src='image_raw?num=" + numbers[i] + "' /></a>");
+            };
+         }
+    );
 </script>
 {% endblock %}
