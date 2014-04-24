@@ -1,4 +1,4 @@
-DONE:
+DONE (10/10 Projects):
 ———
 Swipe a template from oswd.org and put it in place on your imageapp server. (5 pts; browser_app)
 
@@ -16,14 +16,16 @@ After #14, set up a domain name and static IP address for your site. (5 pts; hos
 
 Implement starring, ranking, and a simple recommendation system for your image app image list (5 pts; app_feature)
 
+Add account creation, login, and authentication (5 pts; app_feature)
+
+Add username login via cookies and tracking of image by “owner” (the person who uploaded it). Allow the owner to delete it. (5 pts.; app_feature)
+
 
 
 
 Want to do Next:
 ———
-Add account creation, login, and authentication (5 pts; app_feature)
 
-Add username login via cookies and tracking of image by “owner” (the person who uploaded it). Allow the owner to delete it. (5 pts.; app_feature)
 
 Implement secure cookies (see #9); use UUID. (5 pts; app_feature)
 
