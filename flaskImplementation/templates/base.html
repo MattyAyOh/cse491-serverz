@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="icon" href="/favicon.ico" type="image/x-icon">
+        <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title> MattyAyOh: {{ path }} </title>
+        <link rel="stylesheet" type="text/css" href="http://cse.msu.edu/~aomatthe/default.css" />
+         <script src='jquery'></script>
+    </head>
+    <body>
+    <div id="upbg"></div>
+    <div id="outer">
+        <div id="header">
+                <div id="headercontent">
+                        <h1>MSU LoL Image Sharing<sup>2.3</sup></h1>
+                        <h2>By: Matt Ao</h2>
+                </div>
+        </div>
+
+        <div id="search">
+            <div style="display:none" id='loggedInAs'><font color="white">Logged in as:
+                <span id='username'> {{ username }} </span></font>
+            </div>
+            <div id="notLoggedInOptions" style="display:none">
+                <a href="login">Login</a> | <a href="create_account">Create Account</a>
+            </div>
+            <p><a style="display:none" id="logoutLink" href="logout">Logout</a>
+        </div>
+
+
+        <div id="headerpic"></div>
+
+        {% block content %}
+        {% endblock %}
+
+        <div id="footer">
+                <div class="left">&copy; 2013 Matthew Ao. All rights reserved.</div>
+                <div class="right">Nobody Reads These ^.^</div>
+        </div>
+
+    </div>
+    </body>
+
+    <script type="text/javascript">
+    var username = $.trim($('#username').text())
+    console.log(username)
+    if(username != '')
+    {
+      $('#loggedInAs').show()
+      $('#logoutLink').show()
+    } else {
+      $('#notLoggedInOptions').show()
+    }
+    </script>
+</html>

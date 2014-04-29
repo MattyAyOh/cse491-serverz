@@ -1,5 +1,7 @@
-DONE (10/10 Projects):
+DONE (11/10 Projects):
 ———
+Reimplement the imageapp functionality (minus the silly JavaScript) in your own app.py, or Django or flask. (5 pts each; app_framework)
+
 Swipe a template from oswd.org and put it in place on your imageapp server. (5 pts; browser_app)
 
 Change imageapp to support JPEG and TIFF. (5 pts; app_feature)
@@ -37,7 +39,6 @@ Add image “metadata” uploading, storage, and retrieval: image name, descript
 
 Far down the line:
 ———
-Reimplement the imageapp functionality (minus the silly JavaScript) in your own app.py, or Django or flask. (5 pts each; app_framework)
 
 Write a WSGI middleware component that does recording and playback of all WSGI traffic between server and component. (5 pts; wsgi)
 

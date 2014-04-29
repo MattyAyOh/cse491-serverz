@@ -80,3 +80,7 @@
 	* When an image is uploaded, also attached the current user to the image 
 
  * All 10/10 Projects Done, see TODO for more information
+
+2014-04-28 Matthew Ao <MatthewAo@mayo.local>
+
+ * Did another project, reimplemented the image app within the flask framework.  See flaskImplementation directory.

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div id="menu">
+        <ul>
+                <li><a href="/" >Home</a></li>
+                <li><a href="upload" class="active">Upload</a></li>
+                <li><a href="image">Latest Image</a></li>
+                <li><a href="image_list">All Images</a></li>
+        </ul>
+</div>
+
+Upload an image (jpg, png, or tif)
+
+<form enctype='multipart/form-data' action='upload_receive' method='POST'>
+Filename: <input type='file' name='file'><p>
+<input type='submit'>
+</form>
+{% endblock %}
