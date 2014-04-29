@@ -41,23 +41,46 @@
  * Finished HW8
  * Opted for CSS project
  * Downloaded a stylesheet, and integrated it into jinja templates
+	* In image app created a method to serve the css file
 
 2014-03-27 Matthew Ao <MatthewAo@mayo.local>
 
  * Finished HW9
  * Support TIFF and Comments
+	* Imageapp will parse file name for the extension and serve a file with the correct content type
+	* Image class stores comments
 
 2014-04-03 Matthew Ao <MatthewAo@mayo.local>
 
  * Finished HW10
- * Display all pictures uploaded
+ * Display all pictures uploaded & add URL handler so images are referred to by number
+	* Created a list of Images, the class created in previous homework.  The number in the URL will go to the index in the list.  
+	* Using this, created a new image_list.html file that makes an ajax call to iterate through the image_list and serve all the images in a smaller thumbnail size
 
 2014-04-10 Matthew Ao <MatthewAo@mayo.local>
 
  * Working on HW11
- * Putting server on AWS
+ * Running server on AWS, Bought a domain, mattao.com that points to EC2 instance
+	* See README for more information
 
 2014-04-17 Matthew Ao <MatthewAo@mayo.local>
 
  * HW12
- * Implemented cookies
+ * Added ability to rank images
+	* Added another property to the Image class that stores the score
+
+2014-04-22 Matthew Ao <MatthewAo@mayo.local>
+
+ * HW13
+ * Fixed issue with content-type not being lowercase
+ * Added account creation/login & account cookies/tracking image owner
+	* Added a user table in the database
+	* Used javascript to determine if a user was logged in 
+	* Options to login/logout & create user put into the index.html
+	* When an image is uploaded, also attached the current user to the image 
+
+ * All 10/10 Projects Done, see TODO for more information
+
+2014-04-28 Matthew Ao <MatthewAo@mayo.local>
+
+ * Did another project, reimplemented the image app within the flask framework.  See flaskImplementation directory.
